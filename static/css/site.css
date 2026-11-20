@@ -95,7 +95,21 @@ p { margin: 0 0 1em; }
 /* ── hero ── */
 .hero { padding: clamp(36px, 6vw, 72px) 0 40px; }
 .title { font: 600 clamp(28px, 4.6vw, 47px)/1.1 var(--serif); letter-spacing: -.035em; text-wrap: balance; margin-bottom: 14px; }
-.venue { margin: 0; font-size: 16px; color: var(--ink-2); }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 7.5rem;
+  padding: 6px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--ink-2);
+  font: 500 14px/1.4 var(--sans);
+  text-decoration: none;
+}
+a.hero-pill:hover { border-color: var(--ink-3); color: var(--ink); }
 .title-phrase { display: inline-block; max-width: 100%; }
 @media (min-width: 980px) { .title-tail { display: block; } }
 .title em { font-style: normal; color: var(--gen-ink); }

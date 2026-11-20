@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>LENS · Hidden Smoothness in AI-Generated Videos</title>
+  <meta name="description" content="LENS watches how local structure warps between video frames, and finds that AI-generated videos warp too smoothly.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Source+Serif+4:wght@600&amp;display=swap">
+  <link rel="stylesheet" href="static/css/site.css">
+</head>
+<body>
+  <a class="skip" href="#explore">Skip to the visualization</a>
+
+  <main id="top">
+    <!-- ───────────────────────── Hero ───────────────────────── -->
+    <section class="hero">
+      <div class="wrap">
+        <h1 class="title">LENS: Too Much of <span class="title-phrase">Hidden <em>“Smoothness”</em></span>
+          <span class="title-tail">in AI&#8209;Generated Videos</span></h1>
+        <p class="venue">Under review</p>
+      </div>
+
+      <div class="wrap wide hero-stage" id="hero-stage">
+        <figure class="duo">
+          <div class="clip-frame"><div class="clip-host" data-slot="real"></div><span class="chip real">Real</span></div>
+          <svg class="trace" data-slot="real" role="img" aria-label="Wasserstein distance over time for the real video: jagged"></svg>
+        </figure>
+        <figure class="duo">
+          <div class="clip-frame"><div class="clip-host" data-slot="gen"></div><span class="chip gen">Generated</span></div>
+          <svg class="trace" data-slot="gen" role="img" aria-label="Wasserstein distance over time for the generated video: nearly flat"></svg>
+        </figure>
+        <div class="hero-controls">
+          <div class="legend-heat"><span>residual: low</span><i class="ramp"></i><span>high</span></div>
+          <div class="hero-buttons">
+            <button type="button" class="pill" data-act="overlay" aria-pressed="true">Heatmap</button>
+            <button type="button" class="pill" data-act="slow" aria-pressed="false">Slow motion</button>
+            <button type="button" class="pill" data-act="play" aria-pressed="true">Pause</button>
+          </div>
+        </div>
+        <p class="caption"><span class="fig-no">Figure 1.</span> A real video (left) and a generated video (right) with a
+          similar amount of motion, over the two seconds LENS analyses. The heatmap shows the per-patch residual
+          <i>d<sub>t</sub></i>(<i>p</i>): how much the local neighbourhood structure of a patch changes once its motion
+          is discounted. The curve below each video is the Wasserstein distance <i>W<sub>t</sub></i> between the residual
+          distributions of consecutive frames.</p>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── Abstract ───────────────────────── -->
+    <section id="abstract" class="section">
+      <div class="wrap prose">
+        <h2>Abstract</h2>
+        <p>We aim to detect AI-generated videos without assuming knowledge about the generative model that generated the
+          video. Existing approaches typically use global representations for each video frame and look for patterns in
+          their temporal evolution. Understandably, global representations lose local structural variations, causing
+          detectors to collapse many fine-grained temporal changes into coarse-grained motion. Our idea is to factor out
+          coarse-grained motion and focus on how the relationships between local/neighboring image patches warp between
+          consecutive frames. We call this “residual” motion and find that its distribution over the local neighborhoods
+          diverges slowly, smoothly, in AI-generated videos. In comparison, real videos are far less smooth along that
+          same residual divergence metric, offering an imperceptible signature to separate real from fake. Exactly why
+          an AI model learns this smoothness is difficult to tell; we speculate that generative models tend to
+          under-estimate the independence in motion dynamics among real-world objects. We evaluate our proposed
+          detector, Local Evolution of Neighborhood Structures (LENS), across 4 benchmarks covering 37 generator
+          subsets.</p>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── Method ───────────────────────── -->
+    <section id="how" class="section how">
+      <div class="wrap prose">
+        <h2>Method</h2>
+        <p>LENS describes every patch by its affinities to its neighbouring patches, discounts the patch’s motion by
+          matching it within a small window of the next frame, and keeps what remains as the residual. It then compares
+          the distribution of residuals between consecutive frames with the Wasserstein distance. Because the distance
+          compares sorted residuals, it does not depend on where patches moved, only on how the local structure
+          changed.</p>
+      </div>
+      <div class="wrap wide">
+        <figure class="paper-fig">
+          <img src="static/img/pipeline.webp" width="2200" height="848" loading="lazy" decoding="async"
+               alt="Overview of LENS: patch features from a frozen encoder, local affinity descriptors, best-neighbour temporal matching, and the Wasserstein distance between sorted residual distributions of adjacent frames.">
+          <figcaption class="caption"><span class="fig-no">Figure 2.</span> Overview of LENS. (1) A pretrained encoder
+            computes a representation for each patch of every frame. (2) The affinities between a patch and its
+            neighbouring patches form a local patch descriptor, a discrete distribution. (3) The warp of this descriptor
+            is measured within a larger neighbourhood of the next frame, so the patch’s motion is discounted; the minimal
+            warp, in Jensen–Shannon divergence, is the per-patch residual. (4) The distribution of residuals over patches
+            describes the frame. The residuals are sorted and the Wasserstein distance <i>W<sub>t</sub></i> is computed
+            between adjacent frames; the mean <i>W<sub>t</sub></i> is the video score, low for generated videos.</figcaption>
+        </figure>
+      </div>
+      <div class="wrap wide scrolly">
+        <div class="scrolly-visual" aria-hidden="true">
+          <div class="scrolly-stage">
+            <div class="clip-frame"><div class="clip-host" id="scrolly-clip"></div>
+              <canvas class="annot" id="scrolly-annot"></canvas>
+              <span class="chip neutral" id="scrolly-chip">frame t</span>
+            </div>
+            <div class="scrolly-side">
+              <div class="glyph-box" id="glyph-box">
+                <canvas id="glyph" width="180" height="180"></canvas>
+                <p class="glyph-cap">affinities of patch&nbsp;<i>p</i> to its 8 neighbours</p>
+              </div>
+              <svg class="scrolly-chart" id="scrolly-chart"></svg>
+            </div>
+            <svg class="scrolly-chart2" id="scrolly-chart2"></svg>
+          </div>
+        </div>
+        <div class="scrolly-text">
+        <ol class="scrolly-steps">
+          <li class="step" data-step="1">
+            <button type="button" class="step-btn" aria-expanded="false" aria-controls="step-body-1">
+              <span class="n">1</span><span class="step-title">Patch features</span>
+            </button>
+            <div class="step-body" id="step-body-1">
+              <div>
+                <p>A frozen pretrained encoder maps each frame to a 14&thinsp;×&thinsp;14 grid of patch features.</p>
+              </div>
+            </div>
+          </li>
+          <li class="step" data-step="2">
+            <button type="button" class="step-btn" aria-expanded="false" aria-controls="step-body-2">
+              <span class="n">2</span><span class="step-title">Local patch descriptor</span>
+            </button>
+            <div class="step-body" id="step-body-2">
+              <div>
+                <p>Each patch is described by its affinities to its eight neighbours.</p>
+              </div>
+            </div>
+          </li>
+          <li class="step" data-step="3">
+            <button type="button" class="step-btn" aria-expanded="false" aria-controls="step-body-3">
+              <span class="n">3</span><span class="step-title">Motion-discounted residual</span>
+            </button>
+            <div class="step-body" id="step-body-3">
+              <div>
+                <p>The descriptor is matched within a 5&thinsp;×&thinsp;5 window of the next frame. The smallest
+                  Jensen–Shannon divergence is the residual.</p>
+              </div>
+            </div>
+          </li>
+          <li class="step" data-step="4">
+            <button type="button" class="step-btn" aria-expanded="false" aria-controls="step-body-4">
+              <span class="n">4</span><span class="step-title">Wasserstein distance between frames</span>
+            </button>
+            <div class="step-body" id="step-body-4">
+              <div>
+                <p>The residual distributions of adjacent frames are compared with the Wasserstein distance; its mean
+                  over time is the video score.</p>
+              </div>
+            </div>
+          </li>
+        </ol>
+        <p class="caption scrolly-cap"><span class="fig-no">Figure 3.</span> The four steps on one frame pair of the real
+          video in Figure 1. Select a step to show it.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── Visualization (explorer) ───────────────────────── -->
+    <section id="explore" class="section">
+      <div class="wrap prose">
+        <h2>Visualization</h2>
+      </div>
+      <div class="wrap wide explorer" id="explorer">
+        <div class="ex-main">
+          <div class="clip-frame"><div class="clip-host" id="ex-clip"></div><span class="chip" id="ex-chip"></span></div>
+          <div class="ex-controls">
+            <button type="button" class="icon-btn" id="ex-play" aria-label="Pause"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-pause" d="M7 5h3v14H7zM14 5h3v14h-3z"/><path class="i-play" d="M7 4l13 8-13 8z"/></svg></button>
+            <label class="scrub"><span class="sr-only">Frame pair</span>
+              <input type="range" id="ex-t" min="0" max="14" step="1" value="0">
+              <span class="ticks" aria-hidden="true"></span>
+            </label>
+          </div>
+        </div>
+        <div class="ex-side">
+          <div class="panel">
+            <p class="panel-title">Sorted residuals of frame pairs <i>t</i> and <i>t</i>&nbsp;+&nbsp;1</p>
+            <svg class="ex-sorted" id="ex-sorted" role="img" aria-label="Sorted residual curves"></svg>
+          </div>
+          <div class="panel">
+            <p class="panel-title">Wasserstein distance <i>W<sub>t</sub></i> over time</p>
+            <svg class="ex-trace" id="ex-trace" role="img" aria-label="Wasserstein distance over time"></svg>
+          </div>
+        </div>
+        <div class="rail" id="ex-rail" role="listbox" aria-label="Choose a video"></div>
+        <p class="caption"><span class="fig-no">Figure 4.</span> Residuals of a single clip; select another clip from the
+          row above. Left: the clip with its per-patch residual heatmap; drag the slider to step through the frame pairs.
+          Top right: the sorted residuals of the current frame pair (solid) and the next one (dashed); the shaded area
+          between them is the Wasserstein distance <i>W<sub>t</sub></i>. Bottom right: <i>W<sub>t</sub></i> over the
+          two seconds, with the current frame pair marked.</p>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── Gallery ───────────────────────── -->
+    <section id="gallery" class="section">
+      <div class="wrap prose">
+        <h2>More examples</h2>
+        <p>Real and generated clips from AIGVDBench, EvalCrafter, GenVideo and VideoPhy-2. Hover over or tap a clip to
+          show its residual heatmap; the curve below each clip is <i>W<sub>t</sub></i> over time, on a common scale.</p>
+      </div>
+      <div class="wrap wide">
+        <div class="filters" id="wall-filters" role="group" aria-label="Filter clips"></div>
+        <div class="wall" id="wall"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="wrap prose">
+      <p>Clips are the first two seconds of videos from public research benchmarks (AIGVDBench, EvalCrafter, GenVideo,
+        VideoPhy-2), cropped to the region the model sees and re-encoded at low resolution without audio. Real clips
+        come from YouTube-derived datasets; generated clips come from the named generators. Shown for research
+        illustration only; if you own a clip and want it removed, contact the authors.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="static/js/main.js"></script>
+</body>
+</html>

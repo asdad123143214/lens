@@ -102,14 +102,14 @@ p { margin: 0 0 1em; }
   justify-content: center;
   min-inline-size: 7.5rem;
   padding: 6px 14px;
-  border: 1px solid var(--rule);
+  border: 1px solid color-mix(in srgb, var(--ink-3) 70%, var(--rule));
   border-radius: 999px;
   background: var(--bg);
   color: var(--ink-2);
   font: 500 14px/1.4 var(--sans);
   text-decoration: none;
 }
-a.hero-pill:hover { border-color: var(--ink-3); color: var(--ink); }
+a.hero-pill:hover { border-color: var(--ink-2); color: var(--ink); }
 .title-phrase { display: inline-block; max-width: 100%; }
 @media (min-width: 980px) { .title-tail { display: block; } }
 .title em { font-style: normal; color: var(--gen-ink); }

@@ -83,7 +83,6 @@ em { font-style: italic; }
 
 /* one column edge for everything: text and figures start at the same left edge */
 .wrap { width: 100%; max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter); }
-.wrap.prose > * { max-width: 780px; }
 
 /* ── type ── */
 h1, h2, h3 { font-weight: 400; margin: 0; }
@@ -118,7 +117,7 @@ a.hero-pill:hover { border-color: var(--ink-2); color: var(--ink); }
 .duo { margin: 0; }
 .hero-controls { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: center; justify-content: space-between; }
 .hero-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-.caption, .paper-fig figcaption { grid-column: 1 / -1; font-size: 14.5px; line-height: 1.6; color: var(--ink-2); max-width: 62em; margin: 0; }
+.caption, .paper-fig figcaption { grid-column: 1 / -1; font-size: 14.5px; line-height: 1.6; color: var(--ink-2); margin: 0; }
 .fig-no { font-weight: 600; color: var(--ink); }
 .scrolly-cap { margin-top: 16px; }
 @media (max-width: 720px) { .hero-stage { grid-template-columns: 1fr; } }
